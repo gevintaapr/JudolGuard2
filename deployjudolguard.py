@@ -315,8 +315,7 @@ elif page == "🎛️ Simulator":
         qris_ratio    = st.slider("📱 QRIS Ratio", 0.0, 1.0, 0.1, 0.01)
 
     # ── Hitung risk score secara manual (mirror logika training) ──────────
-    def compute_risk_score_manual(temporal_shift, amount_ratio, total_amount,
-                                   night_ratio, tx_count, burst_score, unique_recv, qris_ratio):
+    def compute_risk_score_manual(temporal_shift, amount_ratio, total_amount, night_ratio, tx_count, burst_score, unique_recv, qris_ratio):
         # Normalisasi setiap fitur ke [0,1] berdasarkan range realistic
         n_night    = min(night_ratio / 0.6, 1.0)
         n_shift    = min(max(temporal_shift, 0) / 0.4, 1.0)
