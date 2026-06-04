@@ -1,5 +1,9 @@
 import { useState, useEffect } from 'react'
 import { healthCheck } from './api'
+import Overview       from './components/Overview'
+import ETLWizard      from './components/ETLWizard'
+import RiskTable      from './components/RiskTable'
+import AccountDetail  from './components/AccountDetail'
 
 // ── Lazy placeholder components (akan diganti tahap per tahap) ─
 const Placeholder = ({ name }) => (
@@ -76,12 +80,24 @@ export default function App() {
   // ── Render page ───────────────────────────────────────────────
   const renderPage = () => {
     switch (activePage) {
-      // Tahap 2
-      case 'overview':  return <Placeholder name="Overview Dashboard (Tahap 2)" />
-      case 'etl':       return <Placeholder name="ETL Wizard (Tahap 2)" />
-      // Tahap 3
-      case 'risk-table': return <Placeholder name="Risk Table (Tahap 3)" />
-      case 'detail':    return <Placeholder name="Account Detail (Tahap 3)" />
+      // Tahap 2 ✅
+      case 'overview':  return <Overview onSelectAccount={(page, id) => { setActivePage(page); if (id) setSelectedAccount(id) }} />
+      case 'etl':       return <ETLWizard />
+      // Tahap 3 ✅
+      case 'risk-table': return (
+        <RiskTable
+          onSelectAccount={(id) => {
+            setSelectedAccount(id)
+            setActivePage('detail')
+          }}
+        />
+      )
+      case 'detail': return (
+        <AccountDetail
+          accountId={selectedAccount}
+          onBack={() => setActivePage('risk-table')}
+        />
+      )
       // Tahap 4
       case 'network':   return <Placeholder name="Network Graph (Tahap 4)" />
       case 'params':    return <Placeholder name="Parameter Engine (Tahap 4)" />
