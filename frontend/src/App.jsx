@@ -13,6 +13,7 @@ import EDAPanel           from './components/EDAPanel'
 import ModelMetrics       from './components/ModelMetrics'
 import AzureProof         from './components/AzureProof'
 import StrategicInsights  from './components/StrategicInsights'
+import ChatbotPanel       from './components/ChatbotPanel'
 
 // ── Lazy placeholder components (akan diganti tahap per tahap) ─
 const Placeholder = ({ name }) => (
@@ -65,6 +66,7 @@ export default function App() {
   const [apiStatus, setApiStatus]   = useState('connecting')
   const [apiInfo,   setApiInfo]     = useState(null)
   const [selectedAccount, setSelectedAccount] = useState(null)
+  const [chatOpen, setChatOpen]     = useState(false)
 
   // ── Cek koneksi API saat startup ─────────────────────────────
   useEffect(() => {
@@ -184,9 +186,60 @@ export default function App() {
       </aside>
 
       {/* ── Main Content ────────────────────────────────────── */}
-      <main className="main-content" key={activePage}>
+      <main
+        className="main-content"
+        key={activePage}
+        style={{ marginRight: chatOpen ? 360 : 0, transition: 'margin-right 0.35s cubic-bezier(0.4,0,0.2,1)' }}
+      >
         {renderPage()}
       </main>
+
+      {/* ── Floating Chatbot Button ──────────────────────── */}
+      <button
+        onClick={() => setChatOpen(prev => !prev)}
+        title={chatOpen ? 'Tutup AI Assistant' : 'Buka AI Assistant'}
+        style={{
+          position: 'fixed',
+          bottom: 28,
+          right: chatOpen ? 372 : 24,
+          zIndex: 200,
+          width: 52,
+          height: 52,
+          borderRadius: '50%',
+          border: 'none',
+          background: chatOpen
+            ? 'rgba(239,68,68,0.15)'
+            : 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
+          color: chatOpen ? 'var(--critical)' : '#fff',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: chatOpen ? '1.3rem' : '1.5rem',
+          boxShadow: chatOpen
+            ? '0 4px 20px rgba(239,68,68,0.3), 0 0 0 1px rgba(239,68,68,0.2)'
+            : '0 4px 20px rgba(59,130,246,0.5), 0 0 0 1px rgba(59,130,246,0.3)',
+          transition: 'all 0.35s cubic-bezier(0.4,0,0.2,1)',
+          transform: chatOpen ? 'rotate(0deg)' : 'rotate(0deg)',
+        }}
+        onMouseEnter={e => {
+          e.currentTarget.style.transform = 'scale(1.1)'
+          e.currentTarget.style.boxShadow = chatOpen
+            ? '0 6px 24px rgba(239,68,68,0.4), 0 0 0 1px rgba(239,68,68,0.3)'
+            : '0 6px 28px rgba(59,130,246,0.7), 0 0 0 1px rgba(59,130,246,0.4)'
+        }}
+        onMouseLeave={e => {
+          e.currentTarget.style.transform = 'scale(1)'
+          e.currentTarget.style.boxShadow = chatOpen
+            ? '0 4px 20px rgba(239,68,68,0.3), 0 0 0 1px rgba(239,68,68,0.2)'
+            : '0 4px 20px rgba(59,130,246,0.5), 0 0 0 1px rgba(59,130,246,0.3)'
+        }}
+      >
+        {chatOpen ? '×' : '🤖'}
+      </button>
+
+      {/* ── Chatbot Slide Panel ───────────────────────────── */}
+      <ChatbotPanel isOpen={chatOpen} onClose={() => setChatOpen(false)} />
     </div>
   )
 }
