@@ -14,6 +14,12 @@ Endpoints:
   POST /api/predict               → prediksi transaksi baru real-time
   POST /api/copilot               → AI chatbot compliance
   GET  /api/etl-simulate          → SSE stream untuk animasi ETL
+
+  [Rubrik Datathon]
+  GET  /api/eda-summary           → statistik EDA + ETL flow (Metodologi 25%)
+  GET  /api/model-metrics         → metrik model + penjelasan hybrid (Model 25%)
+  GET  /api/azure-proof           → bukti terstruktur Azure services (Azure 30%)
+  GET  /api/strategic-insights    → insight + simulasi kebijakan (Insight 20%)
 """
 
 from fastapi import FastAPI, HTTPException
@@ -45,7 +51,9 @@ try:
     xgb_model  = joblib.load("models/xgb_judolguard.pkl")
     iso_forest = joblib.load("models/isolation_forest.pkl")
     risk_df    = pd.read_csv("data/risk_scores_with_explanation.csv")
-    feat_df    = pd.read_csv("data/judolguard_features.csv")
+    # judolguard_.csv adalah raw transaction log yang sudah berisi semua
+    # behavioral features per transaksi — dipakai untuk timeline per akun
+    feat_df    = pd.read_csv("data/judolguard_.csv")
     print("✓ Model dan data berhasil dimuat")
 except Exception as e:
     print(f"⚠ Warning saat load: {e}")
