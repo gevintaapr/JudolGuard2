@@ -1,0 +1,540 @@
+/* ============================================================
+   Onboarding.css — Landing Page JudolGuard
+   Matching the dark navy + cyan design reference
+   ============================================================ */
+
+/* ── Canvas background ─────────────────────────────────────── */
+.ob-root {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #040d1f 0%, #071428 40%, #0a1a38 100%);
+  overflow-y: auto;
+  z-index: 200;
+  font-family: 'Inter', sans-serif;
+}
+
+.ob-canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Shared layout ─────────────────────────────────────────── */
+.ob-landing,
+.ob-connect,
+.ob-init {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 24px 40px;
+}
+
+/* ── Landing: Header ────────────────────────────────────────── */
+.ob-header {
+  width: 100%;
+  max-width: 960px;
+  padding: 24px 0 0;
+}
+
+.ob-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #00d4ff;
+  letter-spacing: -0.3px;
+}
+
+/* ── Landing: Hero ──────────────────────────────────────────── */
+.ob-hero {
+  width: 100%;
+  max-width: 960px;
+  padding: 48px 0 40px;
+}
+
+.ob-hero-title {
+  font-size: 3rem;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.15;
+  letter-spacing: -1px;
+  margin-bottom: 14px;
+}
+
+.ob-gradient-text {
+  background: linear-gradient(90deg, #00d4ff 0%, #a78bfa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.ob-hero-sub {
+  font-size: 0.95rem;
+  color: #64748b;
+}
+
+/* ── Landing: Status Grid ───────────────────────────────────── */
+.ob-status-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  width: 100%;
+  max-width: 960px;
+  margin-bottom: 20px;
+}
+
+.ob-status-card {
+  background: rgba(10, 26, 60, 0.7);
+  border: 1px solid rgba(0, 212, 255, 0.12);
+  border-radius: 14px;
+  padding: 20px 22px;
+  backdrop-filter: blur(12px);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.ob-status-card:hover {
+  border-color: rgba(0, 212, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.ob-status-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.ob-status-label {
+  font-size: 0.72rem;
+  color: #475569;
+}
+
+.ob-status-icon {
+  font-size: 0.9rem;
+  color: #00d4ff;
+}
+
+.ob-status-value {
+  font-size: 2rem;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.1;
+  margin-bottom: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ob-status-sub {
+  font-size: 0.72rem;
+}
+
+/* ── Landing: Action Grid ───────────────────────────────────── */
+.ob-action-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  width: 100%;
+  max-width: 960px;
+  margin-bottom: 32px;
+}
+
+.ob-action-card {
+  background: rgba(10, 26, 60, 0.7);
+  border: 1px solid rgba(0, 212, 255, 0.1);
+  border-radius: 16px;
+  padding: 28px 28px 24px;
+  backdrop-filter: blur(12px);
+  transition: border-color 0.2s ease;
+}
+
+.ob-action-card:hover {
+  border-color: rgba(0, 212, 255, 0.25);
+}
+
+.ob-action-icon {
+  font-size: 1.8rem;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: rgba(0, 212, 255, 0.1);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 12px;
+}
+
+.ob-action-card h3 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.ob-action-card p {
+  font-size: 0.78rem;
+  color: #64748b;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.ob-btn-cyan {
+  padding: 10px 20px;
+  background: linear-gradient(90deg, #00d4ff, #0099cc);
+  color: #040d1f;
+  font-weight: 700;
+  font-size: 0.82rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: filter 0.2s ease, transform 0.15s ease;
+}
+
+.ob-btn-cyan:hover {
+  filter: brightness(1.15);
+  transform: translateY(-1px);
+}
+
+.ob-btn-blue {
+  padding: 10px 20px;
+  background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.82rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: filter 0.2s ease, transform 0.15s ease;
+}
+
+.ob-btn-blue:hover {
+  filter: brightness(1.15);
+  transform: translateY(-1px);
+}
+
+.ob-footer-text {
+  font-size: 0.7rem;
+  color: #334155;
+}
+
+/* ── Connect Phase ──────────────────────────────────────────── */
+.ob-back {
+  align-self: flex-start;
+  padding: 14px 0;
+  background: none;
+  border: none;
+  color: #00d4ff;
+  font-size: 0.82rem;
+  cursor: pointer;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ob-back:hover { opacity: 0.7; }
+
+.ob-connect-card {
+  background: rgba(8, 20, 50, 0.85);
+  border: 1px solid rgba(0, 212, 255, 0.15);
+  border-radius: 20px;
+  padding: 40px 44px;
+  width: 100%;
+  max-width: 560px;
+  backdrop-filter: blur(16px);
+  text-align: center;
+}
+
+.ob-connect-icon {
+  font-size: 2.4rem;
+  margin-bottom: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  background: rgba(0, 212, 255, 0.1);
+  border: 1px solid rgba(0, 212, 255, 0.25);
+  border-radius: 16px;
+}
+
+.ob-connect-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #00d4ff;
+  margin-bottom: 8px;
+}
+
+.ob-connect-sub {
+  font-size: 0.78rem;
+  color: #64748b;
+  margin-bottom: 28px;
+}
+
+.ob-form {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ob-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ob-field label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.ob-field input {
+  width: 100%;
+  padding: 12px 14px;
+  background: rgba(4, 13, 31, 0.8);
+  border: 1px solid rgba(0, 212, 255, 0.15);
+  border-radius: 8px;
+  color: #f1f5f9;
+  font-size: 0.82rem;
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease;
+}
+
+.ob-field input:focus {
+  border-color: rgba(0, 212, 255, 0.5);
+  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.08);
+}
+
+.ob-field input::placeholder { color: #334155; }
+
+.ob-input-wrap {
+  position: relative;
+}
+
+.ob-input-wrap input {
+  padding-right: 44px;
+}
+
+.ob-eye {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  opacity: 0.6;
+}
+
+.ob-encrypt-box {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 14px 16px;
+  background: rgba(0, 212, 255, 0.05);
+  border: 1px solid rgba(0, 212, 255, 0.15);
+  border-radius: 10px;
+}
+
+.ob-encrypt-box > span {
+  font-size: 1rem;
+  flex-shrink: 0;
+  color: #00d4ff;
+  margin-top: 1px;
+}
+
+.ob-encrypt-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #00d4ff;
+  margin-bottom: 4px;
+}
+
+.ob-encrypt-desc {
+  font-size: 0.7rem;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.ob-btn-init {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(90deg, #00d4ff, #3b82f6);
+  color: #040d1f;
+  font-weight: 800;
+  font-size: 0.88rem;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+  font-family: inherit;
+}
+
+.ob-btn-init:hover { filter: brightness(1.1); }
+.ob-btn-init.disabled { opacity: 0.4; cursor: not-allowed; filter: none; }
+
+.ob-secure-footer {
+  margin-top: 20px;
+  font-size: 0.68rem;
+  color: #334155;
+}
+
+/* ── Initializing Phase ─────────────────────────────────────── */
+.ob-init {
+  justify-content: center;
+  gap: 20px;
+  min-height: 100vh;
+}
+
+/* Concentric rings */
+.ob-gauge-wrap {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ob-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px solid;
+  animation: ring-pulse 2s ease-in-out infinite;
+}
+
+.ob-ring-1 {
+  width: 160px; height: 160px;
+  border-color: rgba(0, 212, 255, 0.2);
+  animation-delay: 0s;
+}
+
+.ob-ring-2 {
+  width: 118px; height: 118px;
+  border-color: rgba(139, 92, 246, 0.3);
+  animation-delay: 0.3s;
+}
+
+.ob-ring-3 {
+  width: 80px; height: 80px;
+  border-color: rgba(0, 212, 255, 0.5);
+  animation-delay: 0.6s;
+}
+
+.ob-gauge-center {
+  width: 54px; height: 54px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,212,255,0.25), rgba(4,13,31,0.9));
+  border: 1.5px solid rgba(0, 212, 255, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+}
+
+.ob-gauge-pct {
+  font-size: 0.82rem;
+  font-weight: 900;
+  color: #00d4ff;
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes ring-pulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.04); }
+}
+
+.ob-init-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #fff;
+  text-align: center;
+}
+
+.ob-init-step {
+  font-size: 0.78rem;
+  color: #00d4ff;
+  text-align: center;
+  min-height: 20px;
+}
+
+/* Progress bar */
+.ob-progress-track {
+  width: 480px;
+  max-width: 90vw;
+  height: 6px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.ob-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00d4ff, #3b82f6);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+}
+
+/* Terminal log */
+.ob-init-terminal {
+  width: 480px;
+  max-width: 90vw;
+  background: rgba(4, 10, 28, 0.8);
+  border: 1px solid rgba(0, 212, 255, 0.1);
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-size: 0.7rem;
+  max-height: 140px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ob-log-done {
+  color: #475569;
+}
+
+.ob-log-active {
+  color: #e2e8f0;
+  font-weight: 600;
+}
+
+.ob-cursor {
+  display: inline-block;
+  width: 6px; height: 12px;
+  background: #00d4ff;
+  animation: blink 0.9s step-end infinite;
+  vertical-align: text-bottom;
+  margin-left: 2px;
+}
+
+@keyframes blink { 50% { opacity: 0; } }
+
+.ob-init-footer {
+  font-size: 0.68rem;
+  color: #334155;
+  text-align: center;
+}
+
+/* ── Fade-in animation ─────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.4s cubic-bezier(0.4,0,0.2,1) both;
+}
