@@ -4,6 +4,8 @@ import Overview       from './components/Overview'
 import ETLWizard      from './components/ETLWizard'
 import RiskTable      from './components/RiskTable'
 import AccountDetail  from './components/AccountDetail'
+import ParameterConfig from './components/ParameterConfig'
+import NetworkGraph   from './components/NetworkGraph'
 
 // ── Lazy placeholder components (akan diganti tahap per tahap) ─
 const Placeholder = ({ name }) => (
@@ -98,9 +100,9 @@ export default function App() {
           onBack={() => setActivePage('risk-table')}
         />
       )
-      // Tahap 4
-      case 'network':   return <Placeholder name="Network Graph (Tahap 4)" />
-      case 'params':    return <Placeholder name="Parameter Engine (Tahap 4)" />
+      // Tahap 4 ✅
+      case 'network':   return <NetworkGraph />
+      case 'params':    return <ParameterConfig />
       // Tahap 5
       case 'simulate':  return <Placeholder name="Transaction Simulator (Tahap 5)" />
       case 'copilot':   return <Placeholder name="AI Co-Pilot (Tahap 5)" />
