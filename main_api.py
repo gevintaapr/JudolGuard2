@@ -54,9 +54,9 @@ try:
     # judolguard_.csv adalah raw transaction log yang sudah berisi semua
     # behavioral features per transaksi — dipakai untuk timeline per akun
     feat_df    = pd.read_csv("data/judolguard_.csv")
-    print("✓ Model dan data berhasil dimuat")
+    print("[OK] Model dan data berhasil dimuat")
 except Exception as e:
-    print(f"⚠ Warning saat load: {e}")
+    print(f"[WARN] Warning saat load: {e}")
     xgb_model  = None
     iso_forest = None
     risk_df    = pd.DataFrame()
