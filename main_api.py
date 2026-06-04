@@ -63,6 +63,7 @@ except Exception as e:
     risk_df    = pd.DataFrame()
     feat_df    = pd.DataFrame()
 
+
 # ── Azure OpenAI setup ──────────────────────────────────────
 AZURE_KEY      = os.getenv("AZURE_KEY", "4ji4iP9qKL06gR2Z3lSEuSE8jm7KOqFRgu7vlHtEdJrHUwCfOXtsJQQJ99CDACNns7RXJ3w3AAABACOGPn3O")
 AZURE_ENDPOINT = os.getenv("AZURE_ENDPOINT", "https://projekjudol.openai.azure.com/")
