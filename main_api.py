@@ -64,8 +64,8 @@ except Exception as e:
     feat_df    = pd.DataFrame()
 
 # ── Azure OpenAI setup ──────────────────────────────────────
-AZURE_KEY      = os.getenv("AZURE_KEY", "")
-AZURE_ENDPOINT = os.getenv("AZURE_ENDPOINT", "")
+AZURE_KEY      = os.getenv("AZURE_KEY", "4ji4iP9qKL06gR2Z3lSEuSE8jm7KOqFRgu7vlHtEdJrHUwCfOXtsJQQJ99CDACNns7RXJ3w3AAABACOGPn3O")
+AZURE_ENDPOINT = os.getenv("AZURE_ENDPOINT", "https://projekjudol.openai.azure.com/")
 AZURE_DEPLOY   = os.getenv("AZURE_DEPLOY", "gpt-4o")
 
 FEATURE_COLS = [
