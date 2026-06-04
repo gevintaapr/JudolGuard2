@@ -1,13 +1,17 @@
 import { useState, useEffect } from 'react'
 import { healthCheck } from './api'
-import Overview         from './components/Overview'
-import ETLWizard        from './components/ETLWizard'
-import RiskTable        from './components/RiskTable'
-import AccountDetail    from './components/AccountDetail'
-import ParameterConfig  from './components/ParameterConfig'
-import NetworkGraph     from './components/NetworkGraph'
+import Overview           from './components/Overview'
+import ETLWizard          from './components/ETLWizard'
+import RiskTable          from './components/RiskTable'
+import AccountDetail      from './components/AccountDetail'
+import ParameterConfig    from './components/ParameterConfig'
+import NetworkGraph       from './components/NetworkGraph'
 import SimulateTransaction from './components/SimulateTransaction'
-import AICopilot        from './components/AICopilot'
+import AICopilot          from './components/AICopilot'
+import EDAPanel           from './components/EDAPanel'
+import ModelMetrics       from './components/ModelMetrics'
+import AzureProof         from './components/AzureProof'
+import StrategicInsights  from './components/StrategicInsights'
 
 // ── Lazy placeholder components (akan diganti tahap per tahap) ─
 const Placeholder = ({ name }) => (
@@ -108,11 +112,11 @@ export default function App() {
       // Tahap 5 ✅
       case 'simulate':  return <SimulateTransaction />
       case 'copilot':   return <AICopilot />
-      // Tahap 6
-      case 'eda':       return <Placeholder name="EDA & Metodologi (Tahap 6)" />
-      case 'model':     return <Placeholder name="Model Metrics (Tahap 6)" />
-      case 'azure':     return <Placeholder name="Azure Proof (Tahap 6)" />
-      case 'insights':  return <Placeholder name="Strategic Insights (Tahap 6)" />
+      // Tahap 6 ✅
+      case 'eda':      return <EDAPanel />
+      case 'model':    return <ModelMetrics />
+      case 'azure':    return <AzureProof />
+      case 'insights': return <StrategicInsights />
       default:          return <Placeholder name={activePage} />
     }
   }
