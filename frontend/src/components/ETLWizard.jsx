@@ -148,7 +148,7 @@ export default function ETLWizard() {
 
     const TOTAL_STEPS = 15
     let step = 0
-    const es = new EventSource('/api/etl-simulate')
+    const es = createETLStream()
     sourceRef.current = es
 
     es.onmessage = (e) => {
