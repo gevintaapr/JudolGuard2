@@ -106,7 +106,7 @@ export default function ChatbotPanel({ isOpen, onClose, adjustedData, networkDat
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: 'Halo! Aku Jugu 👋\n\nAku di sini buat bantu kamu analisis data fraud secara real-time. Tanya apa aja — dari risk score akun tertentu, pola transaksi yang mencurigakan, sampai langkah compliance yang harus diambil.'
+      content: 'Halo! Aku Jugu 👋\n\nAku di sini buat bantu kamu analisis data fraud secara real-time. Tanya apa aja mulai dari risk score akun tertentu, pola transaksi yang mencurigakan, sampai langkah compliance yang harus diambil.'
     }
   ])
   const [input, setInput] = useState('')

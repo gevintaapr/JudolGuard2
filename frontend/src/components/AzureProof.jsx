@@ -79,33 +79,7 @@ export default function AzureProof() {
                 </div>
               </div>
 
-              {/* Service details */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginBottom: 12 }}>
-                {svc.endpoint && (
-                  <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-                    <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', width: 64, flexShrink: 0, paddingTop: 1 }}>Endpoint</span>
-                    <span className="mono" style={{ fontSize: '0.68rem', color: cfg.color, wordBreak: 'break-all' }}>{svc.endpoint}</span>
-                  </div>
-                )}
-                {svc.workspace && (
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', width: 64, flexShrink: 0 }}>Workspace</span>
-                    <span className="mono" style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>{svc.workspace}</span>
-                  </div>
-                )}
-                {svc.model && (
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', width: 64, flexShrink: 0 }}>Model</span>
-                    <span className="mono" style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>{svc.model}</span>
-                  </div>
-                )}
-                {svc.run_id && (
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', width: 64, flexShrink: 0 }}>Run ID</span>
-                    <span className="mono" style={{ fontSize: '0.68rem', color: 'var(--text-muted)', wordBreak: 'break-all' }}>{svc.run_id}</span>
-                  </div>
-                )}
-              </div>
+              {/* Service details removed for cleaner UI */}
 
               {/* Usage list */}
               <div style={{ padding: '10px 12px', background: 'var(--bg-surface)', borderRadius: 'var(--radius-sm)' }}>
@@ -122,17 +96,13 @@ export default function AzureProof() {
                 })}
               </div>
 
-              {/* Proof */}
-              <div style={{ marginTop: 10, padding: '6px 10px', borderRadius: 'var(--radius-sm)', background: `${cfg.color}08`, fontSize: '0.65rem', color: cfg.color }}>
-                📎 {svc.proof}
-              </div>
             </div>
           )
         })}
       </div>
 
       {/* ── Model Metrics from Azure ML ─────────────────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         <div className="card" style={{ border: '1px solid rgba(0,120,212,0.2)' }}>
           <div className="card-title" style={{ color: '#0078d4' }}>📊 Performa Model AI</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>

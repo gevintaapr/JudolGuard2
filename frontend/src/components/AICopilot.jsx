@@ -81,7 +81,7 @@ export default function AICopilot() {
   const [messages,   setMessages]   = useState([
     {
       role: 'assistant',
-      content: 'Halo! Aku Jugu 👋\n\nAku spesialis fraud detection & financial risk analysis — udah ngelihat ribuan pola transaksi mencurigakan. Kamu bisa tanya aku soal:\n• Analisis akun spesifik yang mencurigakan\n• Pola smurfing, QRIS Ghost, Midnight Chaser\n• Langkah compliance yang harus diambil\n• Interpretasi risk score dan artinya buat bisnis kamu\n\nMau mulai dari mana?'
+      content: 'Halo! Aku Jugu 👋\n\nAku spesialis fraud detection & financial risk analysis yang udah ngelihat ribuan pola transaksi mencurigakan. Kamu bisa tanya aku soal:\n• Analisis akun spesifik yang mencurigakan\n• Pola smurfing, QRIS Ghost, Midnight Chaser\n• Langkah compliance yang harus diambil\n• Interpretasi risk score dan artinya buat bisnis kamu\n\nMau mulai dari mana?'
     }
   ])
   const [input,      setInput]      = useState('')
