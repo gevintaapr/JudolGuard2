@@ -224,7 +224,11 @@ export default function App() {
               <button
                 key={item.id}
                 className={`nav-item${activeNav === item.id ? ' active' : ''}`}
-                onClick={() => { setActivePage(item.id); setSelectedAccount(null) }}
+                onClick={() => { 
+                  setActivePage(item.id); 
+                  setSelectedAccount(null);
+                  if (item.id === 'copilot') setChatOpen(false);
+                }}
               >
                 <span className="nav-icon" style={{ fontFamily: 'monospace', fontSize: '0.9rem' }}>{item.icon}</span>
                 <span>{item.label}</span>
@@ -246,7 +250,7 @@ export default function App() {
       <main
         className="main-content"
         key={activePage}
-        style={{ marginRight: chatOpen ? 360 : 0, transition: 'margin-right 0.35s cubic-bezier(0.4,0,0.2,1)' }}
+        style={{ marginRight: chatOpen && activePage !== 'copilot' ? 360 : 0, transition: 'margin-right 0.35s cubic-bezier(0.4,0,0.2,1)' }}
       >
         {renderPage()}
       </main>
