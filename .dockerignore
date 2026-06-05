@@ -1,0 +1,24 @@
+# Exclude frontend source and dependencies
+frontend/
+node_modules/
+
+# Exclude git metadata
+.git
+.gitignore
+
+# Exclude Python cache and virtual environment
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Exclude workspace and temp files
+.vscode/
+.gemini/
+*.code-workspace
