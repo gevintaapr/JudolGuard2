@@ -88,6 +88,8 @@ export default function App() {
   const [chatOpen, setChatOpen]       = useState(false)
   // Hasil recalculate dari ParameterConfig — dishare ke semua halaman
   const [adjustedData, setAdjustedData] = useState(null)
+  // Data dari Network Graph — dishare ke chatbot
+  const [networkData, setNetworkData] = useState(null)
 
   useEffect(() => {
     healthCheck()
@@ -140,7 +142,7 @@ export default function App() {
           onBack={() => setActivePage('risk-table')}
         />
       )
-      case 'network':  return <NetworkGraph />
+      case 'network':  return <NetworkGraph onGraphLoaded={setNetworkData} />
       case 'params':   return <ParameterConfig onAdjust={setAdjustedData} adjustedData={adjustedData} />
       case 'copilot':  return <AICopilot />
       case 'eda':      return <EDAPanel />
@@ -285,7 +287,12 @@ export default function App() {
 
       {/* Chatbot panel — juga tidak tampil di halaman AI Assistant */}
       {activePage !== 'copilot' && (
-        <ChatbotPanel isOpen={chatOpen} onClose={() => setChatOpen(false)} />
+        <ChatbotPanel
+          isOpen={chatOpen}
+          onClose={() => setChatOpen(false)}
+          adjustedData={adjustedData}
+          networkData={networkData}
+        />
       )}
 
     </div>

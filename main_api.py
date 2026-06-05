@@ -453,9 +453,11 @@ def predict_transaction(req: PredictRequest):
 
 # ── 7. AI Co-Pilot Chatbot ─────────────────────────────────
 class CopilotRequest(BaseModel):
-    message      : str
-    account_id   : Optional[str] = None
-    conversation : list = []
+    message          : str
+    account_id       : Optional[str] = None
+    conversation     : list = []
+    adjusted_context : Optional[dict] = None  # dikirim saat user sudah apply parameter weights
+    network_context  : Optional[dict] = None  # dikirim saat user sedang buka NetworkGraph
 
 @app.post("/api/copilot")
 def ai_copilot(req: CopilotRequest):
@@ -489,17 +491,55 @@ Konteks akun {req.account_id}:
 - Temporal Shift: {row.get('avg_temporal_shift',0):+.3f}
 """
 
+    # Jika ada adjusted context dari frontend, override summary dengan data yang sudah diadjust
+    if req.adjusted_context:
+        adj = req.adjusted_context
+        summary = f"""
+Data JudolGuard (ADJUSTED PARAMETERS AKTIF):
+- Critical: {adj.get('summary', {}).get('critical',0)}
+- High: {adj.get('summary', {}).get('high',0)}
+- Medium: {adj.get('summary', {}).get('medium',0)}
+- Low: {adj.get('summary', {}).get('low',0)}
+(Gunakan data adjusted ini sebagai acuan analisis utama).
+"""
+    else:
+        summary = f"""
+Data JudolGuard saat ini (distribusi default/baseline):
+- Total akun: {len(risk_df)}
+- Critical: {(risk_df['risk_level']=='Critical').sum()}
+- High: {(risk_df['risk_level']=='High').sum()}
+- Medium: {(risk_df['risk_level']=='Medium').sum()}
+- Low: {(risk_df['risk_level']=='Low').sum()}
+- PR-AUC: 0.9655 | F1: 0.8598
+"""
+
+    net_context_str = ""
+    if req.network_context:
+        n = req.network_context
+        net_context_str = f"""
+Konteks Jaringan Smurfing (Network Graph) yang sedang dilihat user:
+- Origin Account (Bandar): {n.get('account_id')}
+- Risk Score: {n.get('risk_score')}
+- Archetype: {n.get('archetype')}
+- Total Nodes: {n.get('network_size')}
+- Jumlah Mule Accounts: {n.get('mule_count')}
+- Jumlah Collectors: {n.get('collector_count')}
+(Gunakan data jaringan di atas jika user bertanya tentang jaringan, smurfing, node, bandar, mule, atau collector saat ini).
+"""
+
     system_prompt = f"""Kamu adalah JudolGuard AI Co-Pilot, asisten intelijen keuangan untuk tim compliance e-wallet Indonesia.
 
 {summary}
 {account_context}
+{net_context_str}
 
 Panduan respons:
 - Selalu gunakan format: [ANALISIS] ... [INDIKATOR UTAMA] ... [TINDAKAN] ...
 - Labeli akun dengan archetype jika relevan: "Midnight Chaser", "Micro-Smurfer", "QRIS Ghost", "Night Operator", "Network Hub"
 - Berikan tindakan konkret dan spesifik
 - Bahasa Indonesia profesional, ringkas dan actionable
-- Jika ditanya tentang smurfing, jelaskan koneksi jaringan"""
+- Jika ditanya tentang smurfing, jelaskan koneksi jaringan
+- Jika ada data adjusted (setelah penyesuaian parameter), gunakan angka tersebut sebagai acuan utama, bukan data baseline"""
 
     try:
         from openai import AzureOpenAI

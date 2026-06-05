@@ -102,7 +102,7 @@ function ChatBubble({ msg }) {
   )
 }
 
-export default function ChatbotPanel({ isOpen, onClose }) {
+export default function ChatbotPanel({ isOpen, onClose, adjustedData, networkData }) {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
@@ -143,6 +143,8 @@ export default function ChatbotPanel({ isOpen, onClose }) {
       const res = await sendCopilotMessage({
         message:      msg,
         conversation: history,
+        adjustedData: adjustedData || null,
+        networkData:  networkData || null,
       })
 
       setMessages(prev => [
@@ -285,15 +287,39 @@ export default function ChatbotPanel({ isOpen, onClose }) {
             </div>
           </div>
 
-          {/* Azure badge */}
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: 5,
-            padding: '3px 8px', borderRadius: 20,
-            background: 'rgba(0,120,212,0.08)',
-            border: '1px solid rgba(0,120,212,0.2)',
-            fontSize: '0.6rem', color: '#4da6ff',
-          }}>
-            ☁️ Powered by Azure OpenAI GPT-4o
+          {/* Azure + Adjusted badges */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 5,
+              padding: '3px 8px', borderRadius: 20,
+              background: 'rgba(0,120,212,0.08)',
+              border: '1px solid rgba(0,120,212,0.2)',
+              fontSize: '0.6rem', color: '#4da6ff',
+            }}>
+              ☁️ Powered by Azure OpenAI GPT-4o
+            </div>
+            {adjustedData && (
+              <div style={{
+                display: 'inline-flex', alignItems: 'center', gap: 4,
+                padding: '3px 8px', borderRadius: 20,
+                background: 'rgba(234,179,8,0.1)',
+                border: '1px solid rgba(234,179,8,0.35)',
+                fontSize: '0.6rem', color: '#eab308',
+              }}>
+                ⚙️ Custom Parameters
+              </div>
+            )}
+            {networkData && (
+              <div style={{
+                display: 'inline-flex', alignItems: 'center', gap: 4,
+                padding: '3px 8px', borderRadius: 20,
+                background: 'rgba(239,68,68,0.1)',
+                border: '1px solid rgba(239,68,68,0.35)',
+                fontSize: '0.6rem', color: '#f87171',
+              }}>
+                🕸️ Network: {networkData.account_id}
+              </div>
+            )}
           </div>
         </div>
 

@@ -36,6 +36,50 @@ function ScoreBar({ score }) {
   )
 }
 
+// ── Markdown renderer: **bold**, *italic*, bullet list lines ──────
+function renderMarkdown(text) {
+  if (!text) return null
+  const lines = text.split('\n')
+  return lines.map((line, li) => {
+    const trimmed = line.trim()
+    // Bullet point lines (- item or • item or digit. item)
+    const isBullet = /^[-•*]\s+/.test(trimmed)
+    const isNumbered = /^\d+\.\s+/.test(trimmed)
+    const content = isBullet
+      ? trimmed.replace(/^[-•*]\s+/, '')
+      : isNumbered
+      ? trimmed.replace(/^\d+\.\s+/, '')
+      : line
+    // Inline bold/italic
+    const parts = []
+    const regex = /\*\*([^*]+)\*\*|\*([^*]+)\*/g
+    let last = 0, m
+    while ((m = regex.exec(content)) !== null) {
+      if (m.index > last) parts.push(content.slice(last, m.index))
+      if (m[1] !== undefined)
+        parts.push(<strong key={`b-${li}-${m.index}`} style={{ color: '#e2e8f0', fontWeight: 700 }}>{m[1]}</strong>)
+      else if (m[2] !== undefined)
+        parts.push(<em key={`i-${li}-${m.index}`} style={{ color: '#93c5fd', fontStyle: 'normal', fontWeight: 600 }}>{m[2]}</em>)
+      last = m.index + m[0].length
+    }
+    if (last < content.length) parts.push(content.slice(last))
+    const rendered = parts.length ? parts : content
+
+    if (isBullet || isNumbered) {
+      return (
+        <div key={li} style={{ display: 'flex', gap: 8, marginBottom: 4, alignItems: 'flex-start' }}>
+          <span style={{ color: '#00d4ff', flexShrink: 0, marginTop: 1 }}>
+            {isNumbered ? `${trimmed.match(/^(\d+)/)?.[1]}.` : '▸'}
+          </span>
+          <span>{rendered}</span>
+        </div>
+      )
+    }
+    if (!trimmed) return <div key={li} style={{ height: 8 }} />
+    return <div key={li}>{rendered}</div>
+  })
+}
+
 // Custom Pie tooltip
 const PieTooltip = ({ active, payload }) => {
   if (!active || !payload?.length) return null
@@ -303,7 +347,7 @@ export default function Overview({ onSelectAccount, adjustedData }) {
             }}>
               {aiMode === 'summary' ? '◎ AI Executive Summary' : '◆ AI Strategic Recommendations'}
             </div>
-            {aiResult}
+            {renderMarkdown(aiResult)}
             <button
               onClick={() => generateAI(aiMode)}
               style={{

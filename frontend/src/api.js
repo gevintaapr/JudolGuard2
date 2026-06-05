@@ -64,12 +64,30 @@ const JUGU_PERSONA = {
   content: 'Aku Jugu, AI analyst spesialis fraud detection dan keuangan digital. Aku berkomunikasi seperti teman — menyebut diri sendiri dengan "aku" secara default. Kalau user pakai kata "gue/lo", aku ikut pakai "gue/lo". Kalau user pakai "saya/anda", aku pakai "saya". Aku fokus pada analisis risiko, deteksi fraud, dan kepatuhan regulasi PPATK/OJK.'
 }
 
-export const sendCopilotMessage = async ({ message, account_id, conversation }) => {
+export const sendCopilotMessage = async ({ message, account_id, conversation, adjustedData, networkData }) => {
   // Selalu sisipkan persona context di awal conversation history
   const enrichedConversation = [JUGU_PERSONA, ...(conversation || [])]
+
+  // Kirim adjusted_context jika user sudah apply parameter weights
+  const adjusted_context = adjustedData
+    ? { summary: adjustedData.summary }
+    : null
+
+  // Kirim network_context jika user sedang buka NetworkGraph
+  const network_context = networkData
+    ? { 
+        account_id: networkData.account_id, 
+        risk_score: networkData.risk_score, 
+        archetype: networkData.archetype, 
+        network_size: networkData.network_size,
+        mule_count: networkData.nodes?.filter(n => n.type === 'mule').length || 0,
+        collector_count: networkData.nodes?.filter(n => n.type === 'collector').length || 0,
+      }
+    : null
+
   const res = await request('/api/copilot', {
     method: 'POST',
-    body: JSON.stringify({ message, account_id, conversation: enrichedConversation }),
+    body: JSON.stringify({ message, account_id, conversation: enrichedConversation, adjusted_context, network_context }),
   })
   // Strip semua template label [CAPS] di mana saja dalam teks
   // Contoh: [ANALISIS], [INDIKATOR UTAMA], [TINDAKAN], [OVERVIEW], [SOLUSI], dll.

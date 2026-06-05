@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { getAccounts } from '../api'
 import AccountDetail from './AccountDetail'
 
@@ -43,39 +43,56 @@ export default function RiskTable({ onSelectAccount, adjustedData }) {
   const [offset,        setOffset]        = useState(0)
   const LIMIT = 15
 
+  // ── Memoized adjusted lookup (stabil, tidak trigger loop) ───────
+  const adjustedMap = useMemo(() =>
+    adjustedData
+      ? Object.fromEntries(adjustedData.accounts.map(a => [a.account_id, a]))
+      : null
+  , [adjustedData])
+
+  const isAdjusted = !!adjustedMap
+
+  // ── Fetch: saat adjustedData aktif, ambil semua akun sekaligus
+  //          agar filter client-side akurat di seluruh dataset
   const fetchAccounts = useCallback(() => {
     setLoading(true)
     setError(null)
     getAccounts({
-      level:   filterLevel   || undefined,
+      level:   !isAdjusted && filterLevel   ? filterLevel   : undefined,
       profile: filterProfile || undefined,
-      limit:   LIMIT,
-      offset,
+      limit:   isAdjusted ? 9999 : LIMIT,
+      offset:  isAdjusted ? 0    : offset,
     })
       .then(setData)
       .catch(e => setError(e.message))
       .finally(() => setLoading(false))
-  }, [filterLevel, filterProfile, offset])
+  }, [filterLevel, filterProfile, isAdjusted, offset])
 
   useEffect(() => { fetchAccounts() }, [fetchAccounts])
-  useEffect(() => { setOffset(0) }, [filterLevel, filterProfile])
+  useEffect(() => { setOffset(0) }, [filterLevel, filterProfile, isAdjusted])
 
-  // Client-side search filter
-  const filtered = (data.accounts || []).filter(acc =>
-    !search || acc.account_id.toLowerCase().includes(search.toLowerCase())
-  )
+  // ── Client-side filter: search + level pakai adjusted_level jika ada ──
+  const filtered = useMemo(() =>
+    (data.accounts || []).filter(acc => {
+      if (search && !acc.account_id.toLowerCase().includes(search.toLowerCase())) return false
+      if (filterLevel) {
+        const effectiveLevel = adjustedMap
+          ? (adjustedMap[acc.account_id]?.adjusted_level ?? acc.risk_level)
+          : acc.risk_level
+        if (effectiveLevel !== filterLevel) return false
+      }
+      return true
+    })
+  , [data.accounts, search, filterLevel, adjustedMap])
 
-  // Build quick-lookup map dari adjustedData
-  const adjustedMap = adjustedData
-    ? Object.fromEntries(adjustedData.accounts.map(a => [a.account_id, a]))
-    : null
-
-  const totalPages  = Math.ceil(data.total / LIMIT)
-  const currentPage = Math.floor(offset / LIMIT) + 1
+  // ── Paginasi: client-side jika adjustedData aktif, server-side jika tidak ──
+  const totalFiltered = isAdjusted ? filtered.length : data.total
+  const displayedRows = isAdjusted ? filtered.slice(offset, offset + LIMIT) : filtered
+  const totalPages    = Math.ceil(totalFiltered / LIMIT)
+  const currentPage   = Math.floor(offset / LIMIT) + 1
 
   const handleRowClick = (accountId) => {
     setSelectedId(accountId)
-    // also notify parent if needed (for App.jsx back-compat)
     onSelectAccount?.(accountId)
   }
 
@@ -136,8 +153,9 @@ export default function RiskTable({ onSelectAccount, adjustedData }) {
                 </span>
               )}
               <span style={{ marginLeft: 'auto', fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-                Showing <strong style={{ color: 'var(--text-primary)' }}>{filtered.length}</strong> of{' '}
-                <strong style={{ color: 'var(--text-primary)' }}>{data.total}</strong> accounts
+                Showing <strong style={{ color: 'var(--text-primary)' }}>{displayedRows.length}</strong>
+                {filterLevel || search ? <> of <strong style={{ color: 'var(--brand-from)' }}>{totalFiltered}</strong> filtered</> : null}
+                {' '}(<strong style={{ color: 'var(--text-primary)' }}>{data.total}</strong> total)
               </span>
             </div>
 
@@ -186,10 +204,10 @@ export default function RiskTable({ onSelectAccount, adjustedData }) {
                 <div className="icon" style={{ fontSize: '2.5rem' }}>⚠</div>
                 <p style={{ color: 'var(--critical)' }}>{error}</p>
               </div>
-            ) : filtered.length === 0 ? (
+            ) : displayedRows.length === 0 ? (
               <div className="empty-state">
                 <div className="icon" style={{ fontSize: '2.5rem' }}>—</div>
-                <p>No accounts match this filter</p>
+                <p>Tidak ada akun yang sesuai filter ini</p>
               </div>
             ) : (
               <div className="table-wrap" style={{ borderRadius: 'var(--radius-lg)' }}>
@@ -210,7 +228,7 @@ export default function RiskTable({ onSelectAccount, adjustedData }) {
                     </tr>
                   </thead>
                   <tbody>
-                    {filtered.map(acc => {
+                    {displayedRows.map(acc => {
                       const prof = PROFILE_LABELS[acc.profile]
                       const isSelected = acc.account_id === selectedId
                       // Data adjusted jika ada
@@ -300,7 +318,7 @@ export default function RiskTable({ onSelectAccount, adjustedData }) {
             )}
 
             {/* Pagination */}
-            {!loading && data.total > LIMIT && (
+            {!loading && totalFiltered > LIMIT && (
               <div style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 padding: '12px 16px', borderTop: '1px solid var(--border)',
@@ -320,7 +338,7 @@ export default function RiskTable({ onSelectAccount, adjustedData }) {
                   <button
                     className="btn btn-ghost"
                     style={{ padding: '5px 12px', fontSize: '0.72rem' }}
-                    disabled={offset + LIMIT >= data.total}
+                    disabled={offset + LIMIT >= totalFiltered}
                     onClick={() => setOffset(offset + LIMIT)}
                   >
                     Next →

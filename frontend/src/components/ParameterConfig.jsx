@@ -12,31 +12,31 @@ const RISK_COLORS = {
 const WEIGHT_CONFIG = [
   {
     key:   'w_night',
-    label: 'Night Activity Weight',
+    label: 'Bobot Aktivitas Malam',
     icon:  '🌙',
-    desc:  'Sensitivitas transaksi 22.00–04.00',
-    tip:   'Tinggi → akun aktif malam lebih cepat naik skor',
+    desc:  'Seberapa besar pengaruh transaksi di luar jam kerja (22.00–04.00)',
+    tip:   'Semakin tinggi → akun yang sering bertransaksi dini hari dianggap lebih mencurigakan',
   },
   {
     key:   'w_velocity',
-    label: 'Velocity Weight',
+    label: 'Bobot Kecepatan Transaksi',
     icon:  '⚡',
-    desc:  'Sensitivitas lonjakan frekuensi transaksi jangka pendek',
-    tip:   'Tinggi → burst transaksi dalam 24 jam lebih sensitif',
+    desc:  'Seberapa besar pengaruh lonjakan jumlah transaksi dalam waktu singkat',
+    tip:   'Semakin tinggi → akun dengan volume transaksi tiba-tiba tinggi lebih cepat terdeteksi',
   },
   {
     key:   'w_recipient',
-    label: 'Multi-Recipient Weight',
+    label: 'Bobot Penerima Beragam',
     icon:  '👥',
-    desc:  'Sensitivitas transfer ke banyak penerima unik',
-    tip:   'Tinggi → smurfing ke banyak penerima lebih mudah terdeteksi',
+    desc:  'Seberapa besar pengaruh pengiriman dana ke banyak rekening berbeda',
+    tip:   'Semakin tinggi → pola smurfing (transfer ke banyak pihak kecil) lebih mudah terflag',
   },
   {
     key:   'w_smurfing',
-    label: 'Smurfing Contagion Weight',
+    label: 'Bobot Penularan Risiko Jaringan',
     icon:  '🕸️',
-    desc:  'Kekuatan penularan risiko ke akun lain (mule)',
-    tip:   'Tinggi → akun penerima dari Critical ikut naik skornya',
+    desc:  'Seberapa besar pengaruh kedekatan akun dengan jaringan berisiko tinggi',
+    tip:   'Semakin tinggi → akun yang berhubungan dengan akun Critical lebih cepat ikut terdeteksi',
   },
 ]
 
@@ -100,7 +100,6 @@ export default function ParameterConfig({ onAdjust, adjustedData }) {
     w_velocity:  0.7,
     w_recipient: 0.7,
     w_smurfing:  0.5,
-    company:     'Custom Company',
   })
   const [result,   setResult]   = useState(adjustedData || null)
   const [loading,  setLoading]  = useState(false)
@@ -123,7 +122,7 @@ export default function ParameterConfig({ onAdjust, adjustedData }) {
   }
 
   const resetDefaults = () => {
-    setWeights({ w_night: 0.7, w_velocity: 0.7, w_recipient: 0.7, w_smurfing: 0.5, company: 'Custom Company' })
+    setWeights({ w_night: 0.7, w_velocity: 0.7, w_recipient: 0.7, w_smurfing: 0.5 })
     setResult(null)
     if (onAdjust) onAdjust(null)   // reset di seluruh app
   }
@@ -153,39 +152,34 @@ export default function ParameterConfig({ onAdjust, adjustedData }) {
         <p>Sesuaikan bobot deteksi risiko sesuai kebijakan internal perusahaan — tanpa ubah model</p>
       </div>
 
-      {/* ── Formula explanation ────────────────────────────────── */}
+      {/* ── How weighting works ──────────────────────────────── */}
       <div className="card" style={{ marginBottom: 16, background: 'rgba(59,130,246,0.05)', border: '1px solid rgba(59,130,246,0.2)' }}>
-        <div className="card-title" style={{ color: 'var(--brand-from)' }}>📐 Formula Adjusted Score</div>
-        <div className="mono" style={{
-          fontSize: '0.82rem', color: 'var(--text-secondary)',
-          background: 'var(--bg-input)', padding: '12px 16px',
-          borderRadius: 'var(--radius-sm)', lineHeight: 2,
-        }}>
-          Final = (BaseML × 0.55)<br />
-          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ (night_ratio × w_night × 25)<br />
-          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ (burst_score × w_velocity × 15)<br />
-          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ (unique_recv/10 × w_recipient × 20)<br />
-          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ (contagion_boost × w_smurfing)
+        <div className="card-title" style={{ color: 'var(--brand-from)' }}>ℹ️ Cara Kerja Penyesuaian Skor</div>
+        <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.8 }}>
+          Sistem AI JudolGuard menganalisis setiap akun berdasarkan <strong style={{ color: 'var(--text-primary)' }}>4 dimensi perilaku</strong>.
+          Dengan panel ini, tim compliance dapat menentukan <em>seberapa besar bobot</em> masing-masing dimensi
+          sesuai kebijakan internal — tanpa mengubah model AI yang mendasari deteksi.
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 16px', marginTop: 12 }}>
+          {[['🌙','Aktivitas Malam','Apakah akun aktif di luar jam wajar?'],
+            ['⚡','Kecepatan Transaksi','Apakah frekuensi transaksi melonjak tiba-tiba?'],
+            ['👥','Penerima Beragam','Apakah dana dikirim ke banyak rekening berbeda?'],
+            ['🕸️','Penularan Risiko Jaringan','Apakah akun terhubung ke jaringan berisiko tinggi?']
+          ].map(([icon, title, desc]) => (
+            <div key={title} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+              <span style={{ fontSize: '0.9rem', marginTop: 1 }}>{icon}</span>
+              <div>
+                <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-primary)' }}>{title}</div>
+                <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>{desc}</div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 16 }}>
         {/* ── Left: Sliders ─────────────────────────────────────── */}
         <div>
-          {/* Company name */}
-          <div className="card" style={{ marginBottom: 12 }}>
-            <div className="card-title">🏢 Nama Perusahaan / Profil</div>
-            <input
-              className="input"
-              placeholder="Contoh: GoPay, OVO, Dana, BRI..."
-              value={weights.company}
-              onChange={e => setWeight('company', e.target.value)}
-            />
-            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginTop: 6 }}>
-              Setiap perusahaan bisa punya profil bobot yang berbeda
-            </div>
-          </div>
-
           {/* Sliders */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {WEIGHT_CONFIG.map(cfg => (
@@ -238,7 +232,7 @@ export default function ParameterConfig({ onAdjust, adjustedData }) {
               {/* Summary cards */}
               <div className="card">
                 <div className="card-title">
-                  Hasil untuk: <span style={{ color: 'var(--brand-from)' }}>{result.company}</span>
+                  Ringkasan Risiko (Adjusted)
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 8 }}>
                   {['critical','high','medium','low'].map(l => {

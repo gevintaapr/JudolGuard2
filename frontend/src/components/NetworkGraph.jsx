@@ -1,5 +1,39 @@
 import { useState, useRef, useEffect } from 'react'
-import { getAccounts, getNetworkGraph } from '../api'
+import { getAccounts, getNetworkGraph, sendCopilotMessage } from '../api'
+
+// ── Markdown renderer: **bold**, *italic*, bullet list lines ──────
+function renderMarkdown(text) {
+  if (!text) return null
+  const lines = text.split('\n')
+  return lines.map((line, li) => {
+    const trimmed = line.trim()
+    const isBullet = /^[-•*]\s+/.test(trimmed)
+    const isNumbered = /^\d+\.\s+/.test(trimmed)
+    const content = isBullet ? trimmed.replace(/^[-•*]\s+/, '') : isNumbered ? trimmed.replace(/^\d+\.\s+/, '') : line
+    const parts = []
+    const regex = /\*\*([^*]+)\*\*|\*([^*]+)\*/g
+    let last = 0, m
+    while ((m = regex.exec(content)) !== null) {
+      if (m.index > last) parts.push(content.slice(last, m.index))
+      if (m[1] !== undefined) parts.push(<strong key={`b-${li}-${m.index}`} style={{ color: '#e2e8f0', fontWeight: 700 }}>{m[1]}</strong>)
+      else if (m[2] !== undefined) parts.push(<em key={`i-${li}-${m.index}`} style={{ color: '#93c5fd', fontStyle: 'normal', fontWeight: 600 }}>{m[2]}</em>)
+      last = m.index + m[0].length
+    }
+    if (last < content.length) parts.push(content.slice(last))
+    const rendered = parts.length ? parts : content
+
+    if (isBullet || isNumbered) {
+      return (
+        <div key={li} style={{ display: 'flex', gap: 8, marginBottom: 4, alignItems: 'flex-start' }}>
+          <span style={{ color: '#00d4ff', flexShrink: 0, marginTop: 1 }}>{isNumbered ? `${trimmed.match(/^(\d+)/)?.[1]}.` : '▸'}</span>
+          <span>{rendered}</span>
+        </div>
+      )
+    }
+    if (!trimmed) return <div key={li} style={{ height: 8 }} />
+    return <div key={li}>{rendered}</div>
+  })
+}
 
 const NODE_COLORS = {
   origin:    { fill: '#ef4444', stroke: '#fca5a5', label: '🎯 Origin' },
@@ -17,7 +51,7 @@ function SVGGraph({ nodes, edges }) {
   const [tooltip,  setTooltip]  = useState(null)
   const svgRef = useRef(null)
 
-  const W = 680, H = 440
+  const W = 600, H = 320
 
   // Position layout — origin center, mules in ring, collectors outer ring
   const positioned = nodes.map(node => {
@@ -30,7 +64,7 @@ function SVGGraph({ nodes, edges }) {
       const i = muleNodes.indexOf(node)
       const n = muleNodes.length || 1
       const angle = (2 * Math.PI * i) / n - Math.PI / 2
-      const r = 140
+      const r = 100
       return { ...node, x: W/2 + r * Math.cos(angle), y: H/2 + r * Math.sin(angle) }
     }
 
@@ -38,7 +72,7 @@ function SVGGraph({ nodes, edges }) {
       const i = collectorNodes.indexOf(node)
       const n = collectorNodes.length || 1
       const angle = (2 * Math.PI * i) / n - Math.PI / 2 + Math.PI / (n * 2)
-      const r = 200
+      const r = 140
       return { ...node, x: W/2 + r * Math.cos(angle), y: H/2 + r * Math.sin(angle) }
     }
 
@@ -197,13 +231,18 @@ function SVGGraph({ nodes, edges }) {
 }
 
 // ── Main Component ─────────────────────────────────────────────
-export default function NetworkGraph() {
+export default function NetworkGraph({ onGraphLoaded }) {
   const [accountId,    setAccountId]    = useState('')
   const [suggestions,  setSuggestions]  = useState([])
   const [graphData,    setGraphData]    = useState(null)
   const [loading,      setLoading]      = useState(false)
   const [error,        setError]        = useState(null)
   const [showSuggest,  setShowSuggest]  = useState(false)
+
+  // AI Insight State
+  const [aiResult,   setAiResult]   = useState(null)
+  const [aiLoading,  setAiLoading]  = useState(false)
+  const [aiError,    setAiError]    = useState(null)
 
   // Load top critical accounts sebagai quick-select
   useEffect(() => {
@@ -222,6 +261,8 @@ export default function NetworkGraph() {
       const res = await getNetworkGraph(target)
       setGraphData(res)
       setAccountId(target)
+      if (onGraphLoaded) onGraphLoaded(res)
+      setAiResult(null) // reset insight on new graph
     } catch(e) {
       setError(e.message)
       setGraphData(null)
@@ -233,6 +274,27 @@ export default function NetworkGraph() {
   const originNode  = graphData?.nodes?.find(n => n.type === 'origin')
   const muleCount   = graphData?.nodes?.filter(n => n.type === 'mule').length || 0
   const collCount   = graphData?.nodes?.filter(n => n.type === 'collector').length || 0
+
+  const generateInsight = async () => {
+    if (!graphData) return
+    setAiLoading(true)
+    setAiError(null)
+    setAiResult(null)
+    const prompt = `Berikan INSIGHT MENDALAM terkait jaringan smurfing ini:
+- Origin Account: ${graphData.account_id} (Score: ${graphData.risk_score})
+- Mule Accounts: ${muleCount}
+- Collectors: ${collCount}
+Jelaskan apa intinya untuk analis compliance, dan berikan 3 tindakan konkrit (actionable) yang harus dilakukan terhadap jaringan ini.`
+
+    try {
+      const res = await sendCopilotMessage({ message: prompt, conversation: [] })
+      setAiResult(res.reply)
+    } catch (e) {
+      setAiError(e.message)
+    } finally {
+      setAiLoading(false)
+    }
+  }
 
   return (
     <div className="fade-in">
@@ -264,7 +326,7 @@ export default function NetworkGraph() {
 
       <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: 16 }}>
         {/* ── Left: Input & quick-select ─────────────────────── */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, height: '100%' }}>
           <div className="card">
             <div className="card-title">Cari Account</div>
             <div style={{ position: 'relative' }}>
@@ -319,10 +381,10 @@ export default function NetworkGraph() {
           </div>
 
           {/* Quick select — top Critical */}
-          <div className="card" style={{ flex: 1 }}>
-            <div className="card-title">⚡ Quick Select — Top Critical</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-              {suggestions.slice(0, 8).map(s => (
+          <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+            <div className="card-title" style={{ marginBottom: 8 }}>⚡ Quick Select — Top Critical</div>
+            <div className="custom-scrollbar" style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 4, paddingRight: 4 }}>
+              {suggestions.slice(0, 5).map(s => (
                 <button
                   key={s.account_id}
                   onClick={() => fetchGraph(s.account_id)}
@@ -330,7 +392,7 @@ export default function NetworkGraph() {
                     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                     padding: '7px 10px', borderRadius: 6, border: 'none',
                     background: accountId === s.account_id ? 'rgba(59,130,246,0.15)' : 'var(--bg-surface)',
-                    cursor: 'pointer', fontSize: '0.72rem',
+                    cursor: 'pointer', fontSize: '0.72rem', flexShrink: 0,
                     borderLeft: accountId === s.account_id ? '2px solid var(--brand-from)' : '2px solid transparent',
                     transition: 'all 0.15s ease',
                   }}
@@ -364,22 +426,23 @@ export default function NetworkGraph() {
               </div>
             </div>
           )}
+
         </div>
 
         {/* ── Right: SVG Graph ────────────────────────────────── */}
         <div className="card" style={{ padding: 12 }}>
           {loading ? (
-            <div className="loading-state" style={{ height: 440 }}>
+            <div className="loading-state" style={{ height: 320 }}>
               <div className="spinner" style={{ width: 28, height: 28 }} />
               <span>Membangun network graph...</span>
             </div>
           ) : error ? (
-            <div className="empty-state" style={{ height: 440 }}>
+            <div className="empty-state" style={{ height: 320 }}>
               <div className="icon">⚠️</div>
               <p style={{ color: 'var(--critical)' }}>{error}</p>
             </div>
           ) : !graphData ? (
-            <div className="empty-state" style={{ height: 440 }}>
+            <div className="empty-state" style={{ height: 320 }}>
               <div className="icon">🕸️</div>
               <p>Pilih atau masukkan Account ID<br />untuk memvisualisasikan jaringan smurfing-nya</p>
             </div>
@@ -409,6 +472,52 @@ export default function NetworkGraph() {
           )}
         </div>
       </div>
+
+      {/* AI Insight Box dipindah ke bawah agar memanjang ke samping */}
+      {graphData && (
+        <div className="card" style={{
+          marginTop: 16,
+          background: 'linear-gradient(135deg, rgba(0,212,255,0.04), rgba(139,92,246,0.04))',
+          border: '1px solid rgba(0,212,255,0.15)',
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: aiResult || aiLoading || aiError ? 12 : 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontSize: '1rem' }}>✨</span>
+              <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#00d4ff' }}>AI Network Insight</span>
+            </div>
+            {!aiResult && !aiLoading && (
+              <button
+                onClick={generateInsight}
+                style={{
+                  padding: '4px 10px', borderRadius: 20,
+                  border: '1px solid #00d4ff', background: 'rgba(0,212,255,0.1)',
+                  color: '#00d4ff', fontSize: '0.65rem', fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                Generate Insight
+              </button>
+            )}
+          </div>
+
+          {aiLoading && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.75rem', color: 'var(--text-muted)', paddingTop: 12 }}>
+              <div className="spinner" style={{ width: 12, height: 12, borderWidth: 1.5 }} />
+              Menganalisis jaringan...
+            </div>
+          )}
+
+          {aiError && (
+            <div style={{ fontSize: '0.75rem', color: 'var(--critical)', paddingTop: 12 }}>⚠ {aiError}</div>
+          )}
+
+          {aiResult && (
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-primary)', lineHeight: 1.6, paddingTop: 6 }}>
+              {renderMarkdown(aiResult)}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
