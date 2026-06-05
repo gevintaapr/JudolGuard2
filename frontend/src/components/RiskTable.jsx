@@ -30,7 +30,7 @@ function ScoreBar({ score }) {
   )
 }
 
-export default function RiskTable({ onSelectAccount }) {
+export default function RiskTable({ onSelectAccount, adjustedData }) {
   const [data,         setData]         = useState({ accounts: [], total: 0 })
   const [loading,      setLoading]      = useState(true)
   const [error,        setError]        = useState(null)
@@ -64,6 +64,11 @@ export default function RiskTable({ onSelectAccount }) {
   const filtered = (data.accounts || []).filter(acc =>
     !search || acc.account_id.toLowerCase().includes(search.toLowerCase())
   )
+
+  // Build quick-lookup map dari adjustedData
+  const adjustedMap = adjustedData
+    ? Object.fromEntries(adjustedData.accounts.map(a => [a.account_id, a]))
+    : null
 
   const totalPages  = Math.ceil(data.total / LIMIT)
   const currentPage = Math.floor(offset / LIMIT) + 1
@@ -120,6 +125,15 @@ export default function RiskTable({ onSelectAccount }) {
                 <button className="btn btn-ghost" onClick={() => { setFilterLevel(''); setFilterProfile(''); setSearch('') }}>
                   ✕ Reset Filters
                 </button>
+              )}
+              {adjustedData && (
+                <span style={{
+                  padding: '3px 10px', borderRadius: 20, fontSize: '0.65rem', fontWeight: 600,
+                  background: 'rgba(234,179,8,0.12)', border: '1px solid rgba(234,179,8,0.4)',
+                  color: '#eab308',
+                }}>
+                  ⚙️ Adjusted: {adjustedData.company}
+                </span>
               )}
               <span style={{ marginLeft: 'auto', fontSize: '0.72rem', color: 'var(--text-muted)' }}>
                 Showing <strong style={{ color: 'var(--text-primary)' }}>{filtered.length}</strong> of{' '}
@@ -199,6 +213,11 @@ export default function RiskTable({ onSelectAccount }) {
                     {filtered.map(acc => {
                       const prof = PROFILE_LABELS[acc.profile]
                       const isSelected = acc.account_id === selectedId
+                      // Data adjusted jika ada
+                      const adj = adjustedMap?.[acc.account_id]
+                      const displayScore = adj ? adj.adjusted_score : acc.final_risk_score
+                      const displayLevel = adj ? adj.adjusted_level : acc.risk_level
+                      const delta = adj ? adj.score_delta : 0
                       return (
                         <tr
                           key={acc.account_id}
@@ -215,7 +234,7 @@ export default function RiskTable({ onSelectAccount }) {
                         >
                           <td className="mono" style={{
                             fontWeight: 600,
-                            color: isSelected ? 'var(--brand-from)' : 'var(--brand-from)',
+                            color: 'var(--brand-from)',
                             fontSize: '0.75rem',
                           }}>
                             {acc.account_id}
@@ -241,8 +260,23 @@ export default function RiskTable({ onSelectAccount }) {
                               {prof?.label || acc.profile}
                             </span>
                           </td>
-                          <td><span className={`risk-badge ${acc.risk_level}`}>{acc.risk_level}</span></td>
-                          <td><ScoreBar score={acc.final_risk_score} /></td>
+                          <td>
+                            <span className={`risk-badge ${displayLevel}`}>{displayLevel}</span>
+                            {adj && displayLevel !== acc.risk_level && (
+                              <span style={{ fontSize: '0.55rem', color: 'var(--text-muted)', marginLeft: 4 }}>
+                                was {acc.risk_level}
+                              </span>
+                            )}
+                          </td>
+                          <td>
+                            <ScoreBar score={displayScore} />
+                            {adj && delta !== 0 && (
+                              <div style={{ fontSize: '0.6rem', fontWeight: 700, marginTop: 2,
+                                color: delta > 0 ? '#ef4444' : '#22c55e' }}>
+                                {delta > 0 ? '▲' : '▼'} {delta > 0 ? '+' : ''}{delta}
+                              </div>
+                            )}
+                          </td>
                           {!selectedId && <>
                             <td className="mono" style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
                               {acc.avg_night_ratio != null ? `${(acc.avg_night_ratio * 100).toFixed(0)}%` : '—'}

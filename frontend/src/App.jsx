@@ -86,6 +86,8 @@ export default function App() {
   const [apiInfo,   setApiInfo]       = useState(null)
   const [selectedAccount, setSelectedAccount] = useState(null)
   const [chatOpen, setChatOpen]       = useState(false)
+  // Hasil recalculate dari ParameterConfig — dishare ke semua halaman
+  const [adjustedData, setAdjustedData] = useState(null)
 
   useEffect(() => {
     healthCheck()
@@ -113,31 +115,33 @@ export default function App() {
   }
 
   const renderPage = () => {
-    // Jika halaman aktif adalah detail tapi tidak ada accountId → fallback ke risk-table
     if (activePage === 'detail' && !selectedAccount) {
       return (
         <RiskTable
+          adjustedData={adjustedData}
           onSelectAccount={(id) => { setSelectedAccount(id); setActivePage('detail') }}
         />
       )
     }
 
     switch (activePage) {
-      case 'overview':   return <Overview onSelectAccount={navigateTo} />
+      case 'overview':   return <Overview adjustedData={adjustedData} onSelectAccount={navigateTo} />
       case 'etl':        return <ETLWizard />
       case 'risk-table': return (
         <RiskTable
+          adjustedData={adjustedData}
           onSelectAccount={(id) => { setSelectedAccount(id); setActivePage('detail') }}
         />
       )
       case 'detail': return (
         <AccountDetail
           accountId={selectedAccount}
+          adjustedData={adjustedData}
           onBack={() => setActivePage('risk-table')}
         />
       )
       case 'network':  return <NetworkGraph />
-      case 'params':   return <ParameterConfig />
+      case 'params':   return <ParameterConfig onAdjust={setAdjustedData} adjustedData={adjustedData} />
       case 'copilot':  return <AICopilot />
       case 'eda':      return <EDAPanel />
       case 'model':    return <ModelMetrics />

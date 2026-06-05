@@ -94,7 +94,7 @@ function Slider({ config, value, onChange }) {
   )
 }
 
-export default function ParameterConfig() {
+export default function ParameterConfig({ onAdjust, adjustedData }) {
   const [weights, setWeights] = useState({
     w_night:     0.7,
     w_velocity:  0.7,
@@ -102,7 +102,7 @@ export default function ParameterConfig() {
     w_smurfing:  0.5,
     company:     'Custom Company',
   })
-  const [result,   setResult]   = useState(null)
+  const [result,   setResult]   = useState(adjustedData || null)
   const [loading,  setLoading]  = useState(false)
   const [error,    setError]    = useState(null)
 
@@ -114,6 +114,7 @@ export default function ParameterConfig() {
     try {
       const res = await recalculateScores(weights)
       setResult(res)
+      if (onAdjust) onAdjust(res)   // propagasi ke seluruh app
     } catch(e) {
       setError(e.message)
     } finally {
@@ -124,6 +125,7 @@ export default function ParameterConfig() {
   const resetDefaults = () => {
     setWeights({ w_night: 0.7, w_velocity: 0.7, w_recipient: 0.7, w_smurfing: 0.5, company: 'Custom Company' })
     setResult(null)
+    if (onAdjust) onAdjust(null)   // reset di seluruh app
   }
 
   // Comparison chart data

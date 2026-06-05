@@ -51,7 +51,7 @@ const PieTooltip = ({ active, payload }) => {
   )
 }
 
-export default function Overview({ onSelectAccount }) {
+export default function Overview({ onSelectAccount, adjustedData }) {
   const [data,      setData]      = useState(null)
   const [loading,   setLoading]   = useState(true)
   const [error,     setError]     = useState(null)
@@ -116,11 +116,26 @@ export default function Overview({ onSelectAccount }) {
     </div>
   )
 
+  // Kalau adjustedData aktif, pakai summary dari hasil recalculate
+  const summary = adjustedData?.summary
+    ? {
+        critical: adjustedData.summary.critical,
+        high:     adjustedData.summary.high,
+        medium:   adjustedData.summary.medium,
+        low:      adjustedData.summary.low,
+      }
+    : {
+        critical: data?.critical,
+        high:     data?.high,
+        medium:   data?.medium,
+        low:      data?.low,
+      }
+
   const pieData = [
-    { name: 'Critical', value: data.critical },
-    { name: 'High',     value: data.high },
-    { name: 'Medium',   value: data.medium },
-    { name: 'Low',      value: data.low },
+    { name: 'Critical', value: summary.critical },
+    { name: 'High',     value: summary.high },
+    { name: 'Medium',   value: summary.medium },
+    { name: 'Low',      value: summary.low },
   ]
 
   const topAccounts = data.top_accounts || []
@@ -133,6 +148,23 @@ export default function Overview({ onSelectAccount }) {
         <p>Real-time risk detection summary dari model JudolGuard</p>
       </div>
 
+      {/* Banner adjusted mode */}
+      {adjustedData && (
+        <div style={{
+          marginBottom: 14, padding: '10px 16px',
+          background: 'rgba(234,179,8,0.08)', border: '1px solid rgba(234,179,8,0.35)',
+          borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', gap: 10,
+          fontSize: '0.78rem', color: '#eab308',
+        }}>
+          <span style={{ fontSize: '1rem' }}>⚙️</span>
+          <span>
+            <strong>Mode Adjusted Aktif</strong> — Menampilkan risk score yang sudah dihitung ulang berdasarkan bobot parameter untuk
+            <strong style={{ color: '#00d4ff' }}> {adjustedData.company}</strong>.
+            Pergi ke <strong>Parameter</strong> untuk mengubah atau mereset.
+          </span>
+        </div>
+      )}
+
       {/* ── KPI Cards — fokus akun saja ────────────────────────── */}
       <div className="kpi-grid">
         <div className="kpi-card brand">
@@ -142,22 +174,22 @@ export default function Overview({ onSelectAccount }) {
         </div>
         <div className="kpi-card critical">
           <div className="kpi-label">Critical</div>
-          <div className="kpi-value">{data.critical}</div>
+          <div className="kpi-value">{summary.critical}</div>
           <div className="kpi-sub">Score ≥ 81 — escalate to OJK/PPATK</div>
         </div>
         <div className="kpi-card high">
           <div className="kpi-label">High</div>
-          <div className="kpi-value">{data.high}</div>
+          <div className="kpi-value">{summary.high}</div>
           <div className="kpi-sub">Score 61–80 — restrict transfers</div>
         </div>
         <div className="kpi-card medium">
           <div className="kpi-label">Medium</div>
-          <div className="kpi-value">{data.medium}</div>
+          <div className="kpi-value">{summary.medium}</div>
           <div className="kpi-sub">Score 31–60 — send education alert</div>
         </div>
         <div className="kpi-card low">
           <div className="kpi-label">Low</div>
-          <div className="kpi-value">{data.low}</div>
+          <div className="kpi-value">{summary.low}</div>
           <div className="kpi-sub">Score ≤ 30 — passive monitoring</div>
         </div>
       </div>
