@@ -70,7 +70,14 @@ export default function App() {
     try { localStorage.setItem(SESSION_KEY, JSON.stringify(s)) } catch {}
   }
 
-  const savedSession = loadSession()
+  // Jika URL mengandung ?reset=1 → hapus session dan bersihkan URL
+  const isReset = new URLSearchParams(window.location.search).get('reset') === '1'
+  if (isReset) {
+    try { localStorage.removeItem(SESSION_KEY) } catch {}
+    window.history.replaceState({}, '', '/')
+  }
+
+  const savedSession = isReset ? null : loadSession()
 
   const [showDashboard, setShowDashboard] = useState(!!savedSession)
   const [enterpriseName, setEnterpriseName] = useState(savedSession?.enterprise || '')
@@ -93,9 +100,8 @@ export default function App() {
     setShowDashboard(true)
   }
 
-  const handleLogout = () => {
-    // Sesi TIDAK dihapus dari localStorage — user bisa resume tanpa upload ulang
-    // Hanya sembunyikan dashboard, kembali ke landing page
+  // Navigasi ke halaman utama — sesi TETAP tersimpan, bukan sign out
+  const handleGoHome = () => {
     setShowDashboard(false)
     setActivePage('overview')
     setSelectedAccount(null)
@@ -156,30 +162,32 @@ export default function App() {
           <p>AI Compliance Intelligence</p>
         </div>
 
-        {/* Enterprise session info */}
+        {/* Enterprise connected badge */}
         {enterpriseName && (
           <div style={{
             padding: '8px 14px 6px',
             borderBottom: '1px solid var(--border)',
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           }}>
-            <div>
-              <div style={{ fontSize: '0.58rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Active Session</div>
-              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--brand-from)', marginTop: 1 }}>{enterpriseName}</div>
+            <div style={{ fontSize: '0.58rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Connected</div>
+            <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--brand-from)', marginTop: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e', display: 'inline-block', boxShadow: '0 0 6px #22c55e' }} />
+                {enterpriseName}
+              </span>
+              <button
+                onClick={handleGoHome}
+                title="Back to Home"
+                style={{
+                  fontSize: '0.58rem', color: 'var(--text-muted)', background: 'transparent',
+                  border: '1px solid var(--border)', borderRadius: 4, padding: '2px 6px',
+                  cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.color = '#00d4ff'; e.currentTarget.style.borderColor = 'rgba(0,212,255,0.4)' }}
+                onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.borderColor = 'var(--border)' }}
+              >
+                ⌂ Home
+              </button>
             </div>
-            <button
-              onClick={handleLogout}
-              title="Sign out"
-              style={{
-                fontSize: '0.6rem', color: 'var(--text-muted)', background: 'transparent',
-                border: '1px solid var(--border-md)', borderRadius: 4, padding: '2px 7px',
-                cursor: 'pointer', transition: 'all 0.15s',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.color = 'var(--critical)'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.4)' }}
-              onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.borderColor = 'var(--border-md)' }}
-            >
-              Sign out
-            </button>
           </div>
         )}
 

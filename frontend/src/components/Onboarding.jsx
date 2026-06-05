@@ -117,70 +117,32 @@ function LandingPhase({ onConnect, onDashboard, savedSession }) {
         ))}
       </div>
 
-      {/* Saved session resumption — prominent box */}
-      {savedSession && (
-        <div className="ob-resume-box" style={{
-          width: '100%', maxWidth: 960,
-          marginBottom: 20,
-          background: 'linear-gradient(135deg, rgba(0,212,255,0.06), rgba(139,92,246,0.06))',
-          border: '1px solid rgba(0,212,255,0.25)',
-          borderRadius: 16, padding: '18px 24px',
-          display: 'flex', alignItems: 'center', gap: 18,
-          backdropFilter: 'blur(12px)',
-        }}>
-          <div style={{
-            width: 44, height: 44, borderRadius: 12, flexShrink: 0,
-            background: 'linear-gradient(135deg, rgba(0,212,255,0.2), rgba(139,92,246,0.2))',
-            border: '1px solid rgba(0,212,255,0.3)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: '#00d4ff', fontSize: '1.2rem',
-          }}>
-            ↩
-          </div>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#fff', marginBottom: 4 }}>
-              Welcome back, <span style={{ color: '#00d4ff' }}>{savedSession.enterprise}</span>!
-            </div>
-            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>
-              Your session is still active — continue directly to the dashboard without re-uploading.
-            </div>
-          </div>
-          <button
-            style={{
-              padding: '10px 22px', borderRadius: 10, flexShrink: 0,
-              background: 'linear-gradient(90deg, #00d4ff, #3b82f6)',
-              color: '#040d1f', fontWeight: 800, fontSize: '0.82rem',
-              border: 'none', cursor: 'pointer',
-              transition: 'filter 0.2s ease',
-              fontFamily: 'inherit',
-            }}
-            onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.1)'}
-            onMouseLeave={e => e.currentTarget.style.filter = 'none'}
-            onClick={() => onDashboard(savedSession.enterprise)}
-          >
-            Continue to Dashboard →
-          </button>
-        </div>
-      )}
-
-      <div className="ob-action-grid">
+      <div className="ob-action-grid" style={{ justifyContent: 'center' }}>
         <div className="ob-action-card">
           <div className="ob-action-icon">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" strokeWidth="1.5"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
           </div>
-          <h3>Connect Cloud Data Source</h3>
-          <p>Integrate enterprise data via secure encrypted connection</p>
-          <button className="ob-btn-cyan" onClick={onConnect}>Start Connection →</button>
+          <h3>Connect Data Source</h3>
+          <p>Set up your enterprise connection to start analyzing transaction data with AI</p>
+          <button className="ob-btn-cyan" onClick={() => {
+            try { localStorage.removeItem('judolguard_session') } catch {}
+            onConnect()
+          }}>Start Connection →</button>
         </div>
-        <div className="ob-action-card">
-          <div className="ob-action-icon">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" strokeWidth="1.5"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+
+        {/* Kalau sudah punya session — tampilkan opsi balik ke dashboard */}
+        {savedSession && (
+          <div className="ob-action-card" style={{ borderColor: 'rgba(0,212,255,0.3)' }}>
+            <div className="ob-action-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="1.5"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            </div>
+            <h3 style={{ color: '#22c55e' }}>Back to Dashboard</h3>
+            <p>Session <strong style={{ color: '#00d4ff' }}>{savedSession.enterprise}</strong> masih aktif — lanjutkan tanpa connect ulang</p>
+            <button className="ob-btn-blue" onClick={() => onDashboard(savedSession.enterprise)}>Masuk Dashboard →</button>
           </div>
-          <h3>System Overview</h3>
-          <p>Access the analytics dashboard with real-time AI threat detection</p>
-          <button className="ob-btn-blue" onClick={() => onDashboard('')}>Enter Dashboard →</button>
-        </div>
+        )}
       </div>
+
 
       <div className="ob-footer-text">
         Enterprise Encrypted Platform · ISO 27001 · SOC 2 Type II
@@ -188,6 +150,7 @@ function LandingPhase({ onConnect, onDashboard, savedSession }) {
     </div>
   )
 }
+
 
 /* ── Phase 2: Connect Form ───────────────────────────────────── */
 function ConnectPhase({ onBack, onInitialize }) {
@@ -206,19 +169,40 @@ function ConnectPhase({ onBack, onInitialize }) {
         <h2 className="ob-connect-title">Connect Azure Blob Storage</h2>
         <p className="ob-connect-sub">Establish an encrypted connection to Microsoft Azure</p>
 
-        <div className="ob-form">
+        <div className="ob-form" autoComplete="off">
           <div className="ob-field">
             <label>Enterprise Name</label>
-            <input type="text" placeholder="e.g. GoPay, BRI, OVO..." value={form.enterprise} onChange={e => set('enterprise', e.target.value)} />
+            <input
+              type="text"
+              autoComplete="off"
+              name="judolguard-enterprise"
+              placeholder="e.g. GoPay, BRI, OVO..."
+              value={form.enterprise}
+              onChange={e => set('enterprise', e.target.value)}
+            />
           </div>
           <div className="ob-field">
             <label>Container Name</label>
-            <input type="text" placeholder="my-enterprise-container" value={form.container} onChange={e => set('container', e.target.value)} />
+            <input
+              type="text"
+              autoComplete="off"
+              name="judolguard-container"
+              placeholder="my-enterprise-container"
+              value={form.container}
+              onChange={e => set('container', e.target.value)}
+            />
           </div>
           <div className="ob-field">
             <label style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><LockIcon /> Access Key / Secret</label>
             <div className="ob-input-wrap">
-              <input type={showKey ? 'text' : 'password'} placeholder="••••••••••••••••••••••••••••••" value={form.accessKey} onChange={e => set('accessKey', e.target.value)} />
+              <input
+                type={showKey ? 'text' : 'password'}
+                autoComplete="new-password"
+                name="judolguard-key"
+                placeholder="••••••••••••••••••••••••••••••"
+                value={form.accessKey}
+                onChange={e => set('accessKey', e.target.value)}
+              />
               <button className="ob-eye" onClick={() => setShowKey(s => !s)}>
                 {showKey ? <EyeClosed /> : <EyeOpen />}
               </button>

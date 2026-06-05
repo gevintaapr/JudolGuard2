@@ -26,18 +26,20 @@
 .ob-init {
   position: relative;
   z-index: 1;
-  min-height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0 24px 40px;
+  justify-content: center;
+  padding: 0 24px 16px;
+  overflow: hidden;
 }
 
 /* ── Landing: Header ────────────────────────────────────────── */
 .ob-header {
   width: 100%;
   max-width: 960px;
-  padding: 24px 0 0;
+  padding: 16px 0 0;
 }
 
 .ob-logo {
@@ -54,16 +56,16 @@
 .ob-hero {
   width: 100%;
   max-width: 960px;
-  padding: 48px 0 40px;
+  padding: 22px 0 18px;
 }
 
 .ob-hero-title {
-  font-size: 3rem;
+  font-size: 2.2rem;
   font-weight: 900;
   color: #fff;
   line-height: 1.15;
   letter-spacing: -1px;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
 }
 
 .ob-gradient-text {
@@ -82,17 +84,17 @@
 .ob-status-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
+  gap: 10px;
   width: 100%;
   max-width: 960px;
-  margin-bottom: 20px;
+  margin-bottom: 14px;
 }
 
 .ob-status-card {
   background: rgba(10, 26, 60, 0.7);
   border: 1px solid rgba(0, 212, 255, 0.12);
-  border-radius: 14px;
-  padding: 20px 22px;
+  border-radius: 12px;
+  padding: 14px 18px;
   backdrop-filter: blur(12px);
   transition: border-color 0.2s ease, transform 0.2s ease;
 }
@@ -120,11 +122,11 @@
 }
 
 .ob-status-value {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 900;
   color: #fff;
   line-height: 1.1;
-  margin-bottom: 8px;
+  margin-bottom: 5px;
   font-variant-numeric: tabular-nums;
 }
 
@@ -132,23 +134,28 @@
   font-size: 0.72rem;
 }
 
-/* ── Landing: Action Grid ───────────────────────────────────── */
+/* ── Landing: Action Grid ─────────────────────────────────── */
 .ob-action-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: stretch;
+  gap: 14px;
   width: 100%;
   max-width: 960px;
-  margin-bottom: 32px;
+  margin-bottom: 16px;
 }
 
 .ob-action-card {
   background: rgba(10, 26, 60, 0.7);
   border: 1px solid rgba(0, 212, 255, 0.1);
-  border-radius: 16px;
-  padding: 28px 28px 24px;
+  border-radius: 14px;
+  padding: 22px 24px 20px;
   backdrop-filter: blur(12px);
   transition: border-color 0.2s ease;
+  width: 340px;
+  max-width: 100%;
+  text-align: center;
 }
 
 .ob-action-card:hover {
@@ -157,29 +164,29 @@
 
 .ob-action-icon {
   font-size: 1.8rem;
-  margin-bottom: 14px;
+  margin: 0 auto 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   background: rgba(0, 212, 255, 0.1);
   border: 1px solid rgba(0, 212, 255, 0.2);
   border-radius: 12px;
 }
 
 .ob-action-card h3 {
-  font-size: 1.15rem;
+  font-size: 1rem;
   font-weight: 800;
   color: #fff;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .ob-action-card p {
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   color: #64748b;
-  line-height: 1.6;
-  margin-bottom: 20px;
+  line-height: 1.5;
+  margin-bottom: 16px;
 }
 
 .ob-btn-cyan {
