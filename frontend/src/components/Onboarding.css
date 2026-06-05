@@ -503,7 +503,7 @@
   padding: 14px 16px;
   font-family: 'JetBrains Mono', 'Courier New', monospace;
   font-size: 0.7rem;
-  max-height: 140px;
+  height: 140px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;

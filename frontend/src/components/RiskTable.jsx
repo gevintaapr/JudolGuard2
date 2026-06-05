@@ -223,7 +223,6 @@ export default function RiskTable({ onSelectAccount, adjustedData }) {
                         <th>Night Ratio</th>
                         <th>Burst Score</th>
                         <th>Unique Recv/7d</th>
-                        <th>Recommendation</th>
                       </>}
                     </tr>
                   </thead>
@@ -304,9 +303,6 @@ export default function RiskTable({ onSelectAccount, adjustedData }) {
                             </td>
                             <td className="mono" style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
                               {acc.avg_unique_recv != null ? Number(acc.avg_unique_recv).toFixed(0) : '—'}
-                            </td>
-                            <td style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', maxWidth: 180 }} className="truncate">
-                              {acc.recommendation || '—'}
                             </td>
                           </>}
                         </tr>

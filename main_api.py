@@ -343,7 +343,7 @@ def get_network_graph(account_id: str):
         edges.append({
             "from"   : account_id,
             "to"     : mule_id,
-            "label"  : f"Rp{np.random.randint(10,50)}k",
+            "label"  : f"Rp {np.random.randint(2, 50)} Jt",
             "color"  : "#6b7280"
         })
         mule_ids.append(mule_id)

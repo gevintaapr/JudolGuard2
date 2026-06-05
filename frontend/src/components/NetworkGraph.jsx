@@ -9,7 +9,13 @@ function renderMarkdown(text) {
     const trimmed = line.trim()
     const isBullet = /^[-•*]\s+/.test(trimmed)
     const isNumbered = /^\d+\.\s+/.test(trimmed)
-    const content = isBullet ? trimmed.replace(/^[-•*]\s+/, '') : isNumbered ? trimmed.replace(/^\d+\.\s+/, '') : line
+    const isHeading = /^#+\s+/.test(trimmed)
+    
+    let content = line
+    if (isBullet) content = trimmed.replace(/^[-•*]\s+/, '')
+    else if (isNumbered) content = trimmed.replace(/^\d+\.\s+/, '')
+    else if (isHeading) content = trimmed.replace(/^#+\s+/, '')
+    
     const parts = []
     const regex = /\*\*([^*]+)\*\*|\*([^*]+)\*/g
     let last = 0, m
@@ -22,16 +28,24 @@ function renderMarkdown(text) {
     if (last < content.length) parts.push(content.slice(last))
     const rendered = parts.length ? parts : content
 
+    if (isHeading) {
+      return (
+        <div key={li} style={{ fontSize: '0.85rem', fontWeight: 700, color: '#00d4ff', marginTop: 14, marginBottom: 6 }}>
+          {rendered}
+        </div>
+      )
+    }
+
     if (isBullet || isNumbered) {
       return (
-        <div key={li} style={{ display: 'flex', gap: 8, marginBottom: 4, alignItems: 'flex-start' }}>
+        <div key={li} style={{ display: 'flex', gap: 8, marginBottom: 6, alignItems: 'flex-start' }}>
           <span style={{ color: '#00d4ff', flexShrink: 0, marginTop: 1 }}>{isNumbered ? `${trimmed.match(/^(\d+)/)?.[1]}.` : '▸'}</span>
           <span>{rendered}</span>
         </div>
       )
     }
-    if (!trimmed) return <div key={li} style={{ height: 8 }} />
-    return <div key={li}>{rendered}</div>
+    if (!trimmed) return null // return nothing for empty lines to avoid huge gaps
+    return <div key={li} style={{ marginBottom: 8 }}>{rendered}</div>
   })
 }
 
@@ -284,7 +298,7 @@ export default function NetworkGraph({ onGraphLoaded }) {
 - Origin Account: ${graphData.account_id} (Score: ${graphData.risk_score})
 - Mule Accounts: ${muleCount}
 - Collectors: ${collCount}
-Jelaskan apa intinya untuk analis compliance, dan berikan 3 tindakan konkrit (actionable) yang harus dilakukan terhadap jaringan ini.`
+Jelaskan apa intinya untuk analis compliance, dan berikan 3 tindakan konkrit (actionable) yang harus dilakukan terhadap jaringan ini. WAJIB gunakan format Markdown Header seperti \`### Analisis Jaringan\` dan \`### Rekomendasi Investigasi\` untuk membedakan bagian, serta gunakan format bullet points (- atau 1.).`
 
     try {
       const res = await sendCopilotMessage({ message: prompt, conversation: [] })
@@ -381,28 +395,30 @@ Jelaskan apa intinya untuk analis compliance, dan berikan 3 tindakan konkrit (ac
           </div>
 
           {/* Quick select — top Critical */}
-          <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+          <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 120 }}>
             <div className="card-title" style={{ marginBottom: 8 }}>⚡ Quick Select — Top Critical</div>
-            <div className="custom-scrollbar" style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 4, paddingRight: 4 }}>
-              {suggestions.slice(0, 5).map(s => (
-                <button
-                  key={s.account_id}
-                  onClick={() => fetchGraph(s.account_id)}
-                  style={{
-                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                    padding: '7px 10px', borderRadius: 6, border: 'none',
-                    background: accountId === s.account_id ? 'rgba(59,130,246,0.15)' : 'var(--bg-surface)',
-                    cursor: 'pointer', fontSize: '0.72rem', flexShrink: 0,
-                    borderLeft: accountId === s.account_id ? '2px solid var(--brand-from)' : '2px solid transparent',
-                    transition: 'all 0.15s ease',
-                  }}
-                >
-                  <span className="mono" style={{ color: 'var(--brand-from)' }}>{s.account_id}</span>
-                  <span style={{ fontSize: '0.65rem', color: 'var(--critical)', fontWeight: 700 }}>
-                    {s.final_risk_score}
-                  </span>
-                </button>
-              ))}
+            <div style={{ flex: 1, position: 'relative' }}>
+              <div className="custom-scrollbar" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 4, paddingRight: 4 }}>
+                {suggestions.slice(0, 5).map(s => (
+                  <button
+                    key={s.account_id}
+                    onClick={() => fetchGraph(s.account_id)}
+                    style={{
+                      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                      padding: '7px 10px', borderRadius: 6, border: 'none',
+                      background: accountId === s.account_id ? 'rgba(59,130,246,0.15)' : 'var(--bg-surface)',
+                      cursor: 'pointer', fontSize: '0.72rem', flexShrink: 0,
+                      borderLeft: accountId === s.account_id ? '2px solid var(--brand-from)' : '2px solid transparent',
+                      transition: 'all 0.15s ease',
+                    }}
+                  >
+                    <span className="mono" style={{ color: 'var(--brand-from)' }}>{s.account_id}</span>
+                    <span style={{ fontSize: '0.65rem', color: 'var(--critical)', fontWeight: 700 }}>
+                      {s.final_risk_score}
+                    </span>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
